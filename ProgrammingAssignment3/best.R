@@ -1,8 +1,19 @@
+# task number 2
 best <- function(state, outcome) {
     data <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
     data <- select(data, state, outcome)
     best <- sortOrderAndRank(data)
     best$Hospital.Name[1]
+}
+
+# task number 3
+rankhospital <- function(state, outcome, num = "best") {
+    data <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
+    data <- select(data, state, outcome)
+    best <- sortOrderAndRank(data)
+    
+    num <- if(num == "best") 1 else if(num == "worst") nrow(best) else num
+    best$Hospital.Name[num]
 }
 
 sortOrderAndRank <- function(x) {
