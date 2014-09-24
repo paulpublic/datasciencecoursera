@@ -1,15 +1,21 @@
 best <- function(state, outcome) {
     data <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
     data <- select(data, state, outcome)
-    selectBest(data)
+    best <- sortOrderAndRank(data)
+    best$Hospital.Name[1]
 }
 
-selectBest <- function(data) {
-    data[,2] <- as.numeric(data[,2])
-    bestValue <- min(data[,2], na.rm = TRUE)
-    listBest <- subset(data, data[,2] == bestValue)[,1]
-    sort(listBest)[1]
-}
+sortOrderAndRank <- function(x) {
+    x[,2] <- as.numeric(x[,2])
+    
+    x <- x[order(x[,2], x[,1]),] #sorted by rate (1st) and name (2nd)
+    x <- cbind(x, 1:nrow(x)) # Add ranking
+    
+    colnames(x)[2] <- "Rate"
+    colnames(x)[3] <- "Rank"
+    
+    x[!is.na(x[,2]),]
+} 
 
 # Select Hospital.Name(2) and Outcome by state
 select <- function(data, state, outcome) {
@@ -22,7 +28,6 @@ select <- function(data, state, outcome) {
     
     data
 }
-
 
 getOutcomeColumnForName <- function(outcome) {
     if(outcome == "heart attack") {
