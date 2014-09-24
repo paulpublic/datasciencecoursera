@@ -16,6 +16,54 @@ rankhospital <- function(state, outcome, num = "best") {
     best$Hospital.Name[num]
 }
 
+# task number 4
+rankall <- function(outcome, num = "best") {
+    data <- readAll(outcome)
+
+    # order by state, rate and hospital
+    data <- data[order(data$State, data$Rate, data$Hospital), ]
+    
+    fullTable <-data.frame()
+    
+    # loop over states
+    for(state in levels(factor(data$State))) {
+        stateData <- selectStateData(data, state)
+        maxRank <- nrow(stateData)
+        stateData <- cbind(stateData, 1:maxRank)
+        
+        colnames(stateData)[4] <- "Rank"
+    
+        numSelect <- if(num == "best") {
+            1
+        } else if(num == "worst") {
+            maxRank
+        } else {
+            num
+        }
+        
+        hospital <- stateData$Hospital[numSelect]
+        
+        fullTable <- rbind(fullTable, data.frame(hospital, state))
+    }
+    
+    fullTable
+}
+
+selectStateData <- function(data, state) {
+    data[which(data$State == state), ]
+}
+
+readAll <- function(outcome) {
+    data <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
+    outcomeCol <- getOutcomeColumnForName(outcome)
+    data <- data[, c(2, 7, outcomeCol)]
+    colnames(data)[1] <- "Hospital"
+    colnames(data)[2] <- "State"
+    colnames(data)[3] <- "Rate"
+    data[,3] <- as.numeric(data[,3])
+    data[!is.na(data$Rate),]
+}
+
 sortOrderAndRank <- function(x) {
     x[,2] <- as.numeric(x[,2])
     
